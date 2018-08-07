@@ -1,3 +1,5 @@
+![Demo Animation](./assets/demo.gif?raw=true)
+
 # Alcoholic Beverage Price Calculator
 This small calculator calculates how much a restaurant/bar should be charging for an alcoholic beverage.
 This is dependent on the size and cost of the bottle, the fl.oz of alcohol in the beverage, as well as
