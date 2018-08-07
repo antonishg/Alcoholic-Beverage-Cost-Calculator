@@ -28,16 +28,6 @@ class Home extends React.Component {
       this.state = { bottlePrice: '', bottleSize: '', pourAmount: '', liquorCostPercentage: '' , beverageCost: ''};
   }
 
-  appendliquorPercentageField = ({liquorCostPercentage}) => {
-
-    if(!liquorCostPercentage.includes('% ')){
-      this.setState({liquorCostPercentage: '% ' + liquorCostPercentage})
-    }
-
-    if(liquorCostPercentage === '% '){
-      this.setState({liquorCostPercentage: ''})
-    }
-  }
 
   calculate = () => {
 
@@ -69,7 +59,7 @@ class Home extends React.Component {
   }
 
   clearForm = () => {
-    this.setState({bottlePrice: '', bottleSize: '', pourAmount: '', liquorCostPercentage: ''})
+    this.setState({bottlePrice: '', pourAmount: '', liquorCostPercentage: ''})
   }
 
   render() {
