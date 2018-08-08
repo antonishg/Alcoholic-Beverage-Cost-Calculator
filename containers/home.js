@@ -9,7 +9,8 @@ import {  StyleSheet,
           Alert,
           KeyboardAvoidingView,
           TouchableWithoutFeedback,
-          Keyboard
+          Keyboard,
+          ActivityIndicator
         } from 'react-native';
 
 import {createStackNavigator} from 'react-navigation';
@@ -25,7 +26,7 @@ class Home extends React.Component {
 
   constructor(props){
       super(props);
-      this.state = { bottlePrice: '', bottleSize: '', pourAmount: '', liquorCostPercentage: '' , beverageCost: ''};
+      this.state = { bottlePrice: '', bottleSize: '', pourAmount: '', liquorCostPercentage: '' , beverageCost: '', loading: false};
   }
 
 
@@ -39,7 +40,7 @@ class Home extends React.Component {
     let pourAmount = this.state.pourAmount
     let beverageCost = this.state.beverageCost
 
-    if(bottleSize === '' || bottleSize === '' || pourAmount === '' || liquorCostPercentage === ''){
+    if(bottleSize === '' || bottlePrice === '' || pourAmount === '' || liquorCostPercentage === ''){
       return Alert.alert('Fill out all fields')
     }
 
@@ -47,15 +48,36 @@ class Home extends React.Component {
       return Alert.alert('Please enter a valid liquor cost percentage')
     }
 
-    if(bottleSize === 750){
-      beverageCost = ((bottlePrice/25.4)*pourAmount)/(liquorCostPercentage/100)
-    }else if(bottleSize === 1000){
-      beverageCost = ((bottlePrice/33.8)*pourAmount)/(liquorCostPercentage/100)
-    }else if(bottleSize === 1750){
-      beverageCost = ((bottlePrice/59.2)*pourAmount)/(liquorCostPercentage/100)
-    }
-    beverageCost = Math.round(beverageCost*100)/100 // two decimal places
-    navigate('Results', {beverageCost, liquorCostPercentage, bottleSize, bottlePrice, pourAmount})
+    this.setState({loading: true})
+
+    // making the POST request to the server
+    return fetch('http://localhost:8080/api/calculate', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bottleSize: bottleSize,
+          bottlePrice: bottlePrice,
+          pourAmount: pourAmount,
+          liquorCostPercentage: liquorCostPercentage
+        })
+      })
+    // returns a promise - once the promise is resolved we proceed with the rest of the
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({loading: false})
+      beverageCost = responseJson.beverageCost
+      navigate('Results', {beverageCost, liquorCostPercentage, bottleSize, bottlePrice, pourAmount})
+      return responseJson;
+    })
+
+    .catch((error) => {
+      return Alert.alert('There was an error! Try again later.')
+      console.error('error! ', error);
+    });
+
   }
 
   clearForm = () => {
@@ -68,6 +90,14 @@ class Home extends React.Component {
       {label: '1000ml', value: 1000 },
       {label: '1750ml', value: 1750 }
     ];
+
+    if(this.state.loading){ // load an Activity Indicator while waiting for response
+      return(
+        <View style={{flex: 1, padding: 20}}>
+          <ActivityIndicator/>
+        </View>
+      )
+    }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={true}>
